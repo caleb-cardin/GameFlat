@@ -38,13 +38,13 @@ namespace gfui {
 		}
 		glfwSwapInterval(1);
 
-		//glfwSetKeyCallback(mainWindow, key_callback);
+		glfwSetKeyCallback(mainWindow, key_callback);
 
 
 
-		const char* glsl_version = "#version 330";
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		const char* glsl_version = "#version 460";
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		// UI setup
 
 		IMGUI_CHECKVERSION();
@@ -76,25 +76,29 @@ namespace gfui {
 
 	void GFWindow::run()
 	{
+		GFColor4f bgColor = { 0.3f, 0.3f, 0.3f, 1.0 };
 
 		while (!glfwWindowShouldClose(mainWindow))
 		{
-			glfwPollEvents();
-
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
-			ImGui::ShowDemoWindow(&show_demo_window);
+			glfwGetWindowSize(mainWindow, &width, &height);
 
 			// float ratio;
 			// 
 			// ratio = width / (float)height;
 			// 
 			// double time = glfwGetTime();
+			
 
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
+			
+			
+			// Main Menu
 
+			gfui_MainMenu(width, height);
 
-		
+			
 
 
 
@@ -103,12 +107,14 @@ namespace gfui {
 			int width, height;
 			glfwGetFramebufferSize(mainWindow, &width, &height);
 			glViewport(0, 0, width, height);
-			glClearColor(1, 0, 0, 1);
+			glClearColor(bgColor.x, bgColor.y, bgColor.z, bgColor.w);
 
 			glClear(GL_COLOR_BUFFER_BIT);
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 			glfwSwapBuffers(mainWindow);
+			glfwPollEvents();
 		}
 
 	}

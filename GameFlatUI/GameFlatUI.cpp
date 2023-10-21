@@ -2,7 +2,7 @@
 //
 
 #include "GameFlatUI.h"
-#include "core/window.h"
+
 
 
 
@@ -11,4 +11,5 @@ int main()
 	gfui::GFWindow test{};
 	test.init();
 	test.run();
+	test.shutdown();
 }

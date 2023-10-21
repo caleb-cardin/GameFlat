@@ -2,15 +2,26 @@
 
 
 
-#include "imgui.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
+#include "menu.h"
 
 #include "glad/gl.h"
 #include "GLFW/glfw3.h"
 
 #include <cstdio>
+#include <cmath>
+
 namespace gfui {
+
+	struct GFColor4f {
+		float x, y, z, w;
+	};
+
+	inline void gfui_normalize_color(GFColor4f& color) {
+		color.x /= color.w;
+		color.y /= color.w;
+		color.z /= color.w;
+		color.w /= color.w;
+	}
 
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
@@ -31,9 +42,10 @@ namespace gfui {
 	private:
 		GLFWwindow* mainWindow = nullptr;
 
-		int width = 640;
-		int height = 480;
-		bool show_demo_window = true;
+		int width = 1600;
+		int height = 900;
+
+		
 	};
 
 	
