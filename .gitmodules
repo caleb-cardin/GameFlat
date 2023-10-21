@@ -1,0 +1,9 @@
+[submodule "GameFlatUI/lib/imgui"]
+	path = GameFlatUI/lib/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "GameFlatUI/lib/glfw"]
+	path = GameFlatUI/lib/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "GameFlatUI/lib/glad"]
+	path = GameFlatUI/lib/glad
+	url = https://github.com/Dav1dde/glad.git
