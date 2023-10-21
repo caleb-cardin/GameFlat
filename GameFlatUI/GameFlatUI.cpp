@@ -1,9 +1,14 @@
 ﻿// GameFlat.cpp : Defines the entry point for the application.
 //
 
-#include "GameFlat.h"
+#include "GameFlatUI.h"
+#include "core/window.h"
+
+
 
 int main()
 {
-	return 0;
+	gfui::GFWindow test{};
+	test.init();
+	test.run();
 }
