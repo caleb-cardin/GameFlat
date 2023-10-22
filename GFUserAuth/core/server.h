@@ -8,9 +8,8 @@
 #include <vector>
 #include <tuple>
 #include <sstream>
-#include <iomanip>
 #include <restbed>
-#include <openssl/sha.h>
+
 
 
 namespace gfuser {
@@ -59,15 +58,18 @@ namespace gfuser {
 		void init();
 		void shutdown();
 
-		static void post_req_handler(const std::shared_ptr< restbed::Session > session);
-	private:
-
-		restbed::Service g_Service;
-		std::shared_ptr<restbed::Resource> g_ClientReciever;
-		std::shared_ptr<restbed::Settings> g_Settings;
+		static void post_signup_handler(const std::shared_ptr< restbed::Session > session);
+		static void post_login_handler(const std::shared_ptr< restbed::Session > session);
 
         static std::string username;
         static std::string password;
+	private:
+
+		restbed::Service g_Service;
+		std::shared_ptr<restbed::Resource> g_SignupReciever;
+		std::shared_ptr<restbed::Resource> g_LoginReciever;
+		std::shared_ptr<restbed::Settings> g_Settings;
+
 		std::vector<std::string> g_Users;
 	};
 } // namespace gfuser

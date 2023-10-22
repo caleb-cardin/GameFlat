@@ -122,11 +122,12 @@ namespace gfui {
 						else
 						{
 							ImGui::BeginPopupModal("Login Status");
-							ImGui::Text("Login successful!");
-							if (ImGui::Button("OK", ImVec2(120, 0)))
+							ImGui::Text("Login failed!");
+							if (ImGui::Button("Back", ImVec2(120, 0)))
 							{
 								ImGui::CloseCurrentPopup();
 							}
+							
 
 						}
 						ImGui::EndPopup();
