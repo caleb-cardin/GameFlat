@@ -7,9 +7,9 @@
 #include <iostream>
 
 // HTTP Comms
-#include "cpr/cpr.h"
 
 
 
+#include "core/network.h"
 #include "core/window.h"
 
