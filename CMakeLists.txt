@@ -13,8 +13,8 @@ find_package(OpenGL REQUIRED)
 
 # Include sub-projects.
 
-add_subdirectory ("GameFlatUI")
+add_subdirectory ("GameFlatUI/lib/glfw")
 
-add_subdirectory ("GLFW")
+add_subdirectory ("GameFlatUI")
 
 add_subdirectory("GFUserAuth")
