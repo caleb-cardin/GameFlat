@@ -141,6 +141,27 @@ namespace gfui {
 					ImGui::EndPopup();
 				}
 			}
+			else
+			{
+				if (ImGui::Button("Logout"))
+					ImGui::OpenPopup("Logout");
+				bool open_logout = true;
+				if (ImGui::BeginPopupModal("Logout", &open_logout, ImGuiWindowFlags_AlwaysAutoResize))
+				{
+					ImGui::Text("Are you sure you want to log out?");
+					if (ImGui::Button("Yes", ImVec2(120, 0)))
+					{
+						g_CurrentUserName = "Guest";
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Cancel", ImVec2(120, 0)))
+					{
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::EndPopup();
+				}
+			}
 
 			ImGui::PopStyleVar();
 
