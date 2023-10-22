@@ -6,16 +6,7 @@
 
 namespace gfui {
 
-	class GFNetworkPipe {
-	public:
-		GFNetworkPipe() {}
-		~GFNetworkPipe() = default;
-
-		void init();
-		void run();
-
-	private:
-
-	};
+	std::string signupRequest(std::string username, std::string password);
+	std::string loginRequest(std::string username, std::string password);
 
 } // namespace gfui 

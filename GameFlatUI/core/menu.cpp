@@ -2,10 +2,11 @@
 
 namespace gfui {
 
+	std::string g_CurrentUserName{"Guest"};
+
 
 	void gfui_AccountMenu(bool* show, int acct_height)
 	{
-
 
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
 		if (show)
@@ -25,28 +26,121 @@ namespace gfui {
 			
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(150, 10));
 
+			const char* name = gfui::g_CurrentUserName.c_str();
+			ImGui::Text("Logged in as : %s ", name);
 
-			ImGui::Text("Logged in as : Guest");
-
-			if (ImGui::Button("Sign Up"))
-				ImGui::OpenPopup("Sign Up");
-
-			if (ImGui::BeginPopupModal("Sign Up", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+			if (g_CurrentUserName == "Guest")
 			{
-				
-				char buffer[30] = { "\0" };
-				ImGui::InputTextWithHint("Username", "Enter Username", buffer, 30);
+				if (ImGui::Button("Sign Up"))
+					ImGui::OpenPopup("Sign Up");
 
-				if (ImGui::Button("OK", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
-				ImGui::SetItemDefaultFocus();
+				if (ImGui::BeginPopupModal("Sign Up", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+				{
+
+					static char name_buffer[256] = "";
+					static char pass_buffer[256] = "";
+
+					ImGui::InputText("Username", name_buffer, IM_ARRAYSIZE(name_buffer));
+
+					ImGui::InputText("Password", pass_buffer, IM_ARRAYSIZE(pass_buffer), ImGuiInputTextFlags_Password);
+					bool signup_success = false;
+					if (ImGui::Button("Sign Up", ImVec2(120, 0)))
+					{
+
+						ImGui::OpenPopup("Signup Status");
+						// Make request to sever
+						std::string response = signupRequest(std::string(name_buffer), std::string(pass_buffer));
+
+						if (response == "SUCCESS")
+						{
+							ImGui::BeginPopupModal("Signup Status");
+							ImGui::Text("Signup successful!");
+							if (ImGui::Button("OK", ImVec2(120, 0)))
+							{
+								signup_success = true;
+
+								ImGui::CloseCurrentPopup();
+							}
+							gfui::g_CurrentUserName = name_buffer;
+						}
+						else
+						{
+							ImGui::BeginPopupModal("Signup Status");
+							ImGui::Text("Signup successful!");
+							if (ImGui::Button("OK", ImVec2(120, 0)))
+							{
+								ImGui::CloseCurrentPopup();
+							}
+
+						}
+						ImGui::EndPopup();
+					}
+
+					ImGui::SetItemDefaultFocus();
+					ImGui::SameLine();
+
+					if (ImGui::Button("Cancel", ImVec2(120, 0)) || signup_success)
+					{
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::EndPopup();
+				}
+
 				ImGui::SameLine();
-				if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
-				ImGui::EndPopup();
+
+				if (ImGui::Button("Login"))
+					ImGui::OpenPopup("Login Screen");
+
+				if (ImGui::BeginPopupModal("Login Screen", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+				{
+					static char name_buffer[256] = "";
+					static char pass_buffer[256] = "";
+
+					ImGui::InputText("Username", name_buffer, IM_ARRAYSIZE(name_buffer));
+
+					ImGui::InputText("Password", pass_buffer, IM_ARRAYSIZE(pass_buffer), ImGuiInputTextFlags_Password);
+					bool login_success = false;
+					if (ImGui::Button("Login", ImVec2(120, 0)))
+					{
+
+						ImGui::OpenPopup("Login Status");
+						// Make request to sever
+						std::string response = loginRequest(std::string(name_buffer), std::string(pass_buffer));
+
+						if (response == "SUCCESS")
+						{
+							ImGui::BeginPopupModal("Login Status");
+							ImGui::Text("Login successful!");
+							if (ImGui::Button("OK", ImVec2(120, 0)))
+							{
+								login_success = true;
+
+								ImGui::CloseCurrentPopup();
+							}
+							gfui::g_CurrentUserName = name_buffer;
+						}
+						else
+						{
+							ImGui::BeginPopupModal("Login Status");
+							ImGui::Text("Login successful!");
+							if (ImGui::Button("OK", ImVec2(120, 0)))
+							{
+								ImGui::CloseCurrentPopup();
+							}
+
+						}
+						ImGui::EndPopup();
+					}
+					ImGui::SetItemDefaultFocus();
+					ImGui::SameLine();
+
+					if (ImGui::Button("Cancel", ImVec2(120, 0)) || login_success)
+					{
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::EndPopup();
+				}
 			}
-
-			ImGui::SameLine();
-
-			ImGui::Button("Login");
 
 			ImGui::PopStyleVar();
 

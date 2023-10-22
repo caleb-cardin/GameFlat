@@ -9,6 +9,5 @@ int main()
 
     gfuser::GFUserServer test{};
     test.init();
-    test.run();
     test.shutdown();
 }

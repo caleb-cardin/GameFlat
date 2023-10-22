@@ -8,8 +8,6 @@
 
 int main()
 {
-	gfui::GFNetworkPipe net{};
-	net.init();
 
 	gfui::GFWindow test{};
 	test.init();

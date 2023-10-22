@@ -3,15 +3,16 @@
 namespace gfui {
 
 
-	void GFNetworkPipe::init()
+	std::string signupRequest(std::string username, std::string password)
 	{
-		cpr::Response r = cpr::Post(cpr::Url{ "http://localhost:1984/signup" }, cpr::Payload({ { "username", "password" }, { "other", "nice" } }));
-		std::cout << r.text << std::endl;
+		cpr::Response r = cpr::Post(cpr::Url{ "http://localhost:1984/signup" }, cpr::Payload({ { "username", username }, { "password", password } }));
+		return r.text;
 	}
 
-	void GFNetworkPipe::run()
+	std::string loginRequest(std::string username, std::string password)
 	{
-
+		cpr::Response r = cpr::Post(cpr::Url{ "http://localhost:1984/login" }, cpr::Payload({ { "username", username }, { "password", password } }));
+		return r.text;
 	}
 
 
