@@ -168,8 +168,34 @@ namespace gfui {
 
 			ImGui::PopStyleVar();
 		}
-
 		ImGui::EndChild();
+
+
+		ImGui::BeginChild("DebugMenu", ImVec2(), true, window_flags);
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("DebugMenu"))
+			{
+
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+
+			ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.f);
+
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(150, 10));
+			if (ImGui::Button("DEBUG MESSAGE"))
+			{
+				std::string resp = debugRequest("A message from CS361 SENT");
+				fprintf(stdout, "A message from CS361 SENT: %s \n", resp.c_str());
+			}
+
+			ImGui::PopStyleVar();
+
+			ImGui::PopStyleVar();
+		}
+		ImGui::EndChild();
+
 		ImGui::PopStyleVar();
 	}
 

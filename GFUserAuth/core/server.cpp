@@ -3,8 +3,7 @@
 
 namespace gfuser {
 
-	std::string GFUserServer::username = "default_username";
-	std::string GFUserServer::password = "default_password";
+	std::map<std::string, std::string> GFUserServer::g_Users{};
 
 	std::string urlDecode(const std::string& value) 
 	{
@@ -58,11 +57,10 @@ namespace gfuser {
 				std::string urlEncodedData(body.begin(), body.end());
 				std::map<std::string, std::string> formData = parseUrlEncoded(urlEncodedData);
 
-				GFUserServer::username = formData["username"];
-				GFUserServer::password = formData["password"];
-				fprintf(stdout, "%s, %s", GFUserServer::username.c_str(), GFUserServer::password.c_str());
+				auto incoming_username = formData["username"];
+				auto incoming_password = formData["password"];
+				GFUserServer::g_Users[incoming_username] = incoming_password;
 
-				// fprintf(stdout, "%.*s\n", (int)body.size(), body.data());
 
 				session->close(restbed::OK, "SUCCESS", { {"Content-Length", "8"} });
 			
@@ -84,11 +82,7 @@ namespace gfuser {
 				auto incoming_username = formData["username"];
 				auto incoming_password = formData["password"];
 				
-
-
-				// fprintf(stdout, "%.*s\n", (int)body.size(), body.data());
-
-				if (incoming_username == GFUserServer::username && incoming_password == GFUserServer::password)
+				if (GFUserServer::g_Users.at(incoming_username) == incoming_password)
 				{
 					session->close(restbed::OK, "SUCCESS", { {"Content-Length", "8"} });
 				}
@@ -96,6 +90,26 @@ namespace gfuser {
 				{
 					session->close(restbed::BAD_REQUEST, "FAILURE", { {"Content-Length", "8"} });
 				}
+				
+
+			}
+		);
+	}
+
+	void GFUserServer::post_debug_message_handler(const std::shared_ptr< restbed::Session > session)
+	{
+		const auto request = session->get_request();
+
+		int content_length = request->get_header("Content-Length", 0);
+
+		session->fetch(content_length, [](const std::shared_ptr< restbed::Session > session, const restbed::Bytes& body)
+			{
+				std::string urlEncodedData(body.begin(), body.end());
+				std::map<std::string, std::string> formData = parseUrlEncoded(urlEncodedData);
+
+				fprintf(stdout, "A message from CS361 :\nRECIEVED ON USER AUTH : BODY= %s", formData.at("DEBUG_FROM_CLIENT:").c_str());
+
+				session->close(restbed::OK, "SUCCESS", { {"Content-Length", "8"} });
 
 			}
 		);
@@ -103,7 +117,11 @@ namespace gfuser {
 
 	void GFUserServer::init()
 	{
-		g_SignupReciever.reset( new restbed::Resource );
+		g_DebugReciever.reset(new restbed::Resource);
+		g_DebugReciever->set_path("/debug");
+		g_DebugReciever->set_method_handler("POST", &post_debug_message_handler);
+
+		g_SignupReciever.reset(new restbed::Resource);
 		g_SignupReciever->set_path("/signup");
 		g_SignupReciever->set_method_handler("POST", &post_signup_handler);
 
@@ -115,6 +133,7 @@ namespace gfuser {
 		g_Settings->set_port(1984);
 		g_Settings->set_default_header("Connection", "close");
 
+		g_Service.publish(g_DebugReciever);
 		g_Service.publish(g_SignupReciever);
 		g_Service.publish(g_LoginReciever);
 
