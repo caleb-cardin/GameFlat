@@ -15,6 +15,11 @@ namespace gfui {
 		fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 	}
 
+	void resize_callback(GLFWwindow* window, int x, int y)
+	{
+		fprintf(stdout, "Winodw resized %d, %d\n", x, y);
+	}
+
 	void GFWindow::init()
 	{
 		// Window setup
@@ -23,6 +28,8 @@ namespace gfui {
 		{
 			// error
 		}
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
 
 		mainWindow = glfwCreateWindow(width, height, "GameFlatUI", NULL, NULL);
 		if (!mainWindow)
@@ -39,8 +46,6 @@ namespace gfui {
 		glfwSwapInterval(1);
 
 		glfwSetKeyCallback(mainWindow, key_callback);
-
-
 
 		const char* glsl_version = "#version 460";
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -71,7 +76,6 @@ namespace gfui {
 		glfwDestroyWindow(mainWindow);
 
 		glfwTerminate();
-
 	}
 
 	void GFWindow::run()
@@ -97,10 +101,6 @@ namespace gfui {
 			// Main Menu
 
 			gfui_MainMenu(width, height);
-
-			
-
-
 
 			ImGui::Render();
 

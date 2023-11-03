@@ -2,8 +2,51 @@
 
 namespace gfui {
 
-	std::string g_CurrentUserName{"Guest"};
+	std::string g_CurrentUserName{"Rancid"};
 
+	void gfui_FavoritesMenu(bool* show, int fav_height)
+	{
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
+		if (show)
+			window_flags |= ImGuiWindowFlags_MenuBar;
+		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
+		ImGui::BeginChild("FavoritesMenu", ImVec2(0, fav_height), true, window_flags);
+
+		if (show && ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("Favorites"))
+			{
+
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+
+		ImGui::EndChild();
+		ImGui::PopStyleVar();
+	}
+
+	void gfui_SettingsMenu(bool* show, int sett_height)
+	{
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
+		if (show)
+			window_flags |= ImGuiWindowFlags_MenuBar;
+		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
+		ImGui::BeginChild("SettingsMenu", ImVec2(0, sett_height), true, window_flags);
+
+		if (show && ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("Settings"))
+			{
+
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+
+		ImGui::EndChild();
+		ImGui::PopStyleVar();
+	}
 
 	void gfui_AccountMenu(bool* show, int acct_height)
 	{
@@ -144,8 +187,20 @@ namespace gfui {
 			}
 			else
 			{
+				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 10));
+				const char* bio = "Software Developer";
+
+				// Display user picture to the left
+				ImGui::Image(nullptr, ImVec2(60, 60));
+				ImGui::SameLine();
+				ImGui::BeginChild("Profile");
+				ImGui::Text("Username: %s", gfui::g_CurrentUserName.c_str());
+				ImGui::Text("Bio: %s", bio);
+				
+
 				if (ImGui::Button("Logout"))
 					ImGui::OpenPopup("Logout");
+				
 				bool open_logout = true;
 				if (ImGui::BeginPopupModal("Logout", &open_logout, ImGuiWindowFlags_AlwaysAutoResize))
 				{
@@ -162,32 +217,9 @@ namespace gfui {
 					}
 					ImGui::EndPopup();
 				}
-			}
-
-			ImGui::PopStyleVar();
-
-			ImGui::PopStyleVar();
-		}
-		ImGui::EndChild();
-
-
-		ImGui::BeginChild("DebugMenu", ImVec2(), true, window_flags);
-		if (ImGui::BeginMenuBar())
-		{
-			if (ImGui::BeginMenu("DebugMenu"))
-			{
-
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenuBar();
-
-			ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.f);
-
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(150, 10));
-			if (ImGui::Button("DEBUG MESSAGE"))
-			{
-				std::string resp = debugRequest("A message from CS361 SENT");
-				fprintf(stdout, "A message from CS361 SENT: %s \n", resp.c_str());
+				ImGui::EndChild();
+				ImGui::PopStyleVar();
+				
 			}
 
 			ImGui::PopStyleVar();
@@ -209,9 +241,9 @@ namespace gfui {
 			main_width = minimum_main_width;
 
 		int account_height = height / 6;
-		const int minimum_account_height = 150;
-		if (account_height < minimum_account_height)
-			account_height = minimum_account_height;
+		int fav_height = height / 2;
+		int sett_height = height - account_height - fav_height - 25;
+
 
 		ImGui::BeginGroup();
 
@@ -222,23 +254,15 @@ namespace gfui {
 		static bool disable_menu = false;
 
 		gfui_AccountMenu(&disable_menu, account_height);
-
+		gfui_FavoritesMenu(&disable_menu, fav_height);
+		gfui_SettingsMenu(&disable_menu, sett_height);
+		
 
 		ImGui::End();
 
 		ImGui::EndGroup();
 	}
 
-	
 
-	void gfui_FavoritesMenu()
-	{
-
-	}
-
-	void gfui_SettingsMenu()
-	{
-
-	}
 
 } //namespace gfui

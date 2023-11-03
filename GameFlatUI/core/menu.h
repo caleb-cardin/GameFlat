@@ -14,7 +14,7 @@ namespace gfui {
 
 	void gfui_AccountMenu(bool* show, int acct_height);
 	void gfui_MainMenu(int width, int height);
-	void gfui_FavoritesMenu();
-	void gfui_SettingsMenu();
+	void gfui_FavoritesMenu(bool* show, int fav_height);
+	void gfui_SettingsMenu(bool* show, int sett_height);
 
 } //namespace gfui
