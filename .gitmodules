@@ -7,3 +7,6 @@
 [submodule "GameFlatUI/lib/glfw"]
 	path = GameFlatUI/lib/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "GameFlatUI/lib/hashlib"]
+	path = GameFlatUI/lib/hashlib
+	url = https://github.com/stbrumme/hash-library.git
