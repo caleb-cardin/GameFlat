@@ -11,11 +11,12 @@ add_executable (GameFlatUI "GameFlatUI.cpp"
 				"core/window.h" 
 				"lib/glad/src/gl.c"
 				"core/network.cpp" 
-				"core/network.h")
+				"core/network.h" "core/user.cpp" "core/user.h")
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib)
-target_link_libraries(GameFlatUI PRIVATE cpr::cpr OpenGL::GL "glfw" "imgui" )
-target_include_directories(GameFlatUI PUBLIC "./lib/imgui" "./lib/glad/include/")
+
+target_link_libraries(GameFlatUI PRIVATE cpr::cpr OpenGL::GL glfw imgui SHA256)
+target_include_directories(GameFlatUI PUBLIC "./lib/imgui" "./lib/glad/include/" "./lib/stbimg/")
 
 
 

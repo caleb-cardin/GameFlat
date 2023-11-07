@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include "cpr/cpr.h"
-
+#include "sha256.h"
 
 namespace gfui {
 

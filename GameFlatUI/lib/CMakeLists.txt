@@ -18,7 +18,12 @@ file(GLOB IMGUI_GLOB
     ${IMGUI_PATH}/backends/imgui_impl_opengl3.h
     ${IMGUI_PATH}/backends/imgui_impl_opengl3.cpp
     ${IMGUI_PATH}/backends/imgui_impl_opengl3_loader.cpp)
-add_library("imgui" STATIC ${IMGUI_GLOB})
-target_include_directories("imgui" PUBLIC ${IMGUI_PATH})
-target_link_libraries("imgui" PRIVATE glfw)
+add_library(imgui STATIC ${IMGUI_GLOB})
+target_include_directories(imgui PUBLIC ${IMGUI_PATH})
+target_link_libraries(imgui PRIVATE glfw)
 
+add_library(SHA256 STATIC
+    "hashlib/sha256.cpp"
+    "hashlib/sha256.h"
+)
+target_include_directories(SHA256 PUBLIC hashlib/)

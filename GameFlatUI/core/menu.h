@@ -9,12 +9,15 @@
 #include <iostream>
 
 #include "network.h"
+#include "user.h"
 
 namespace gfui {
 
-	void gfui_AccountMenu(bool* show, int acct_height);
+	void gfui_AccountMenu(bool* show, int height);
 	void gfui_MainMenu(int width, int height);
-	void gfui_FavoritesMenu(bool* show, int fav_height);
-	void gfui_SettingsMenu(bool* show, int sett_height);
+	void gfui_FavoritesMenu(bool* show, int height);
+	void gfui_SettingsMenu(bool* show, int height);
+	void gfui_FriendsMenu(bool* show, int height);
+	void gfui_NotifsMenu(bool* show, int height);
 
 } //namespace gfui

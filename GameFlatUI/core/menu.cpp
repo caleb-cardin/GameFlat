@@ -1,16 +1,19 @@
 #include "menu.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 namespace gfui {
 
-	std::string g_CurrentUserName{"Rancid"};
+	User g_CurrentUser{};
 
-	void gfui_FavoritesMenu(bool* show, int fav_height)
+	void gfui_FavoritesMenu(bool* show, int height)
 	{
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
 		if (show)
 			window_flags |= ImGuiWindowFlags_MenuBar;
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-		ImGui::BeginChild("FavoritesMenu", ImVec2(0, fav_height), true, window_flags);
+		ImGui::BeginChild("FavoritesMenu", ImVec2(0, height), true, window_flags);
 
 		if (show && ImGui::BeginMenuBar())
 		{
@@ -26,13 +29,13 @@ namespace gfui {
 		ImGui::PopStyleVar();
 	}
 
-	void gfui_SettingsMenu(bool* show, int sett_height)
+	void gfui_SettingsMenu(bool* show, int height)
 	{
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
 		if (show)
 			window_flags |= ImGuiWindowFlags_MenuBar;
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-		ImGui::BeginChild("SettingsMenu", ImVec2(0, sett_height), true, window_flags);
+		ImGui::BeginChild("SettingsMenu", ImVec2(0, height), true, window_flags);
 
 		if (show && ImGui::BeginMenuBar())
 		{
@@ -44,18 +47,29 @@ namespace gfui {
 			ImGui::EndMenuBar();
 		}
 
+		if (ImGui::Button("Account Settings"))
+		{
+
+		}
+		if (ImGui::Button("App Settings"))
+		{
+			
+		}
+		
+		
+
 		ImGui::EndChild();
 		ImGui::PopStyleVar();
 	}
 
-	void gfui_AccountMenu(bool* show, int acct_height)
+	void gfui_AccountMenu(bool* show, int height)
 	{
 
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
 		if (show)
 			window_flags |= ImGuiWindowFlags_MenuBar;
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-		ImGui::BeginChild("AccountMenu", ImVec2(0, acct_height), true, window_flags);
+		ImGui::BeginChild("AccountMenu", ImVec2(0, height), true, window_flags);
 		if (show && ImGui::BeginMenuBar())
 		{
 			if (ImGui::BeginMenu("Account"))
@@ -69,52 +83,62 @@ namespace gfui {
 			
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(150, 10));
 
-			const char* name = gfui::g_CurrentUserName.c_str();
-			ImGui::Text("Logged in as : %s ", name);
+			ImGui::Text("Logged in as : %s ", gfui::g_CurrentUser.get_Username().c_str());
 
-			if (g_CurrentUserName == "Guest")
+			
+			bool login_from_signup = true;
+			if (gfui::g_CurrentUser.get_Username() == "Guest")
 			{
 				if (ImGui::Button("Sign Up"))
 					ImGui::OpenPopup("Sign Up");
 
 				if (ImGui::BeginPopupModal("Sign Up", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 				{
-
 					static char name_buffer[256] = "";
 					static char pass_buffer[256] = "";
+					static bool hide_pass = true;
 
 					ImGui::InputText("Username", name_buffer, IM_ARRAYSIZE(name_buffer));
+					ImGui::InputText("Password", pass_buffer, IM_ARRAYSIZE(pass_buffer), hide_pass ? ImGuiInputTextFlags_Password : ImGuiInputTextFlags_None);
+					ImGui::SameLine();
+					ImGui::Checkbox("Hide", &hide_pass);
 
-					ImGui::InputText("Password", pass_buffer, IM_ARRAYSIZE(pass_buffer), ImGuiInputTextFlags_Password);
+
+					ImGui::Checkbox("Log in on success", &login_from_signup);
+
+					static std::string signup_response{};
+
 					bool signup_success = false;
 					if (ImGui::Button("Sign Up", ImVec2(120, 0)))
 					{
-
-						ImGui::OpenPopup("Signup Status");
-						// Make request to sever
-						std::string response = signupRequest(std::string(name_buffer), std::string(pass_buffer));
-
-						if (response == "SUCCESS")
+						signup_response = signupRequest(std::string(name_buffer), std::string(pass_buffer));
+						ImGui::OpenPopup("Sign Up Status");
+						if (signup_response == "SUCCESS")
 						{
-							ImGui::BeginPopupModal("Signup Status");
-							ImGui::Text("Signup successful!");
-							if (ImGui::Button("OK", ImVec2(120, 0)))
+							signup_success = true;
+							if (login_from_signup)
 							{
-								signup_success = true;
-
-								ImGui::CloseCurrentPopup();
+								auto login_response = loginRequest(std::string(name_buffer), std::string(pass_buffer));
+								// Make request to sever
+								if (login_response == "SUCCESS")
+								{
+									gfui::g_CurrentUser.set_Username(std::string(name_buffer));
+								}
 							}
-							gfui::g_CurrentUserName = name_buffer;
 						}
 						else
 						{
-							ImGui::BeginPopupModal("Signup Status");
-							ImGui::Text("Signup successful!");
-							if (ImGui::Button("OK", ImVec2(120, 0)))
-							{
-								ImGui::CloseCurrentPopup();
-							}
 
+						}
+					}
+
+					if (ImGui::BeginPopupModal("Sign Up Status", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+					{
+						ImGui::Text(signup_response.c_str());
+
+						if (ImGui::Button("OK", ImVec2(120, 0)))
+						{
+							ImGui::CloseCurrentPopup();
 						}
 						ImGui::EndPopup();
 					}
@@ -124,6 +148,8 @@ namespace gfui {
 
 					if (ImGui::Button("Cancel", ImVec2(120, 0)) || signup_success)
 					{
+						name_buffer;
+						pass_buffer;
 						ImGui::CloseCurrentPopup();
 					}
 					ImGui::EndPopup();
@@ -142,39 +168,33 @@ namespace gfui {
 					ImGui::InputText("Username", name_buffer, IM_ARRAYSIZE(name_buffer));
 
 					ImGui::InputText("Password", pass_buffer, IM_ARRAYSIZE(pass_buffer), ImGuiInputTextFlags_Password);
+					
+					static std::string login_response{};
+					
 					bool login_success = false;
 					if (ImGui::Button("Login", ImVec2(120, 0)))
 					{
-
 						ImGui::OpenPopup("Login Status");
+						login_response = loginRequest(std::string(name_buffer), std::string(pass_buffer));
 						// Make request to sever
-						std::string response = loginRequest(std::string(name_buffer), std::string(pass_buffer));
-
-						if (response == "SUCCESS")
+						if (login_response == "SUCCESS")
 						{
-							ImGui::BeginPopupModal("Login Status");
-							ImGui::Text("Login successful!");
-							if (ImGui::Button("OK", ImVec2(120, 0)))
-							{
-								login_success = true;
-
-								ImGui::CloseCurrentPopup();
-							}
-							gfui::g_CurrentUserName = name_buffer;
+							login_success = true;
+							gfui::g_CurrentUser.set_Username(std::string(name_buffer));
 						}
-						else
-						{
-							ImGui::BeginPopupModal("Login Status");
-							ImGui::Text("Login failed!");
-							if (ImGui::Button("Back", ImVec2(120, 0)))
-							{
-								ImGui::CloseCurrentPopup();
-							}
-							
+					}
 
+					if (ImGui::BeginPopupModal("Login Status", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+					{
+						ImGui::Text(login_response.c_str());
+
+						if (ImGui::Button("OK", ImVec2(120, 0)))
+						{
+							ImGui::CloseCurrentPopup();
 						}
 						ImGui::EndPopup();
 					}
+
 					ImGui::SetItemDefaultFocus();
 					ImGui::SameLine();
 
@@ -191,23 +211,64 @@ namespace gfui {
 				const char* bio = "Software Developer";
 
 				// Display user picture to the left
-				ImGui::Image(nullptr, ImVec2(60, 60));
+				ImGui::Image(g_CurrentUser.get_Profile_Image(), ImVec2(60, 60));
 				ImGui::SameLine();
 				ImGui::BeginChild("Profile");
-				ImGui::Text("Username: %s", gfui::g_CurrentUserName.c_str());
+				ImGui::Text("Username: %s", gfui::g_CurrentUser.get_Username().c_str());
 				ImGui::Text("Bio: %s", bio);
 				
 
+				ImGui::PopStyleVar();
+
+				if (ImGui::Button("Edit"))
+					ImGui::OpenPopup("Edit");
+
+				bool open_edit = true;
+				bool open_edit_confirm = true;
+				if (ImGui::BeginPopupModal("Edit", &open_edit, ImGuiWindowFlags_AlwaysAutoResize))
+				{
+					ImGui::Text("Edit Profile: COMING SOON!");
+					if (ImGui::Button("Cancel", ImVec2(120, 0)))
+					{
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Confirm", ImVec2(120, 0)))
+					{
+						ImGui::OpenPopup("Confirm Edit");
+					}
+					if (ImGui::BeginPopupModal("Confirm Edit", &open_edit_confirm, ImGuiWindowFlags_AlwaysAutoResize))
+					{
+						ImGui::Text("Are you sure you want edit");
+						if (ImGui::Button("Yes", ImVec2(120, 0)))
+						{
+							ImGui::CloseCurrentPopup();
+							open_edit = false;
+						}
+						ImGui::SameLine();
+						if (ImGui::Button("Cancel", ImVec2(120, 0)))
+						{
+							ImGui::CloseCurrentPopup();
+						}
+
+						ImGui::EndPopup();
+
+					}
+
+
+					ImGui::EndPopup();
+				}
+
 				if (ImGui::Button("Logout"))
 					ImGui::OpenPopup("Logout");
-				
+
 				bool open_logout = true;
 				if (ImGui::BeginPopupModal("Logout", &open_logout, ImGuiWindowFlags_AlwaysAutoResize))
 				{
 					ImGui::Text("Are you sure you want to log out?");
 					if (ImGui::Button("Yes", ImVec2(120, 0)))
 					{
-						g_CurrentUserName = "Guest";
+						gfui::g_CurrentUser.set_Username("Guest");
 						ImGui::CloseCurrentPopup();
 					}
 					ImGui::SameLine();
@@ -217,9 +278,11 @@ namespace gfui {
 					}
 					ImGui::EndPopup();
 				}
-				ImGui::EndChild();
-				ImGui::PopStyleVar();
+
 				
+				
+				ImGui::EndChild();
+		
 			}
 
 			ImGui::PopStyleVar();
@@ -231,19 +294,62 @@ namespace gfui {
 		ImGui::PopStyleVar();
 	}
 
+	void gfui_FriendsMenu(bool* show, int height)
+	{
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
+		if (show)
+			window_flags |= ImGuiWindowFlags_MenuBar;
+		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
+		ImGui::BeginChild("FriendsMenu", ImVec2(0, height), true, window_flags);
+
+		if (show && ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("Friends"))
+			{
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+		ImGui::TextColored(ImVec4(.6f, .7f, .7f, 1), g_CurrentUser.get_Username() == "Guest" ? "Please log in to access friends list!" : "Friends list coming soon!");
+
+		ImGui::EndChild();
+		ImGui::PopStyleVar();
+	}
+
+	void gfui_NotifsMenu(bool* show, int height)
+	{
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
+		if (show)
+			window_flags |= ImGuiWindowFlags_MenuBar;
+		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
+		ImGui::BeginChild("NotificationMenu", ImVec2(0, height), true, window_flags);
+
+		if (show && ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("Notifications"))
+			{
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+		ImGui::TextColored(ImVec4(.6f, .7f, .7f, 1), g_CurrentUser.get_Username() == "Guest" ? "Please log in to access notifications!" : "Friends list coming soon!");
+
+		ImGui::EndChild();
+		ImGui::PopStyleVar();
+	}
+
 	void gfui_MainMenu(int width, int height)
 	{
 		bool main_open = true;
 
-		int main_width = width / 4;
-		const int minimum_main_width = 200;
-		if (main_width < minimum_main_width)
-			main_width = minimum_main_width;
+		int main_width = width / 5;
 
-		int account_height = height / 6;
-		int fav_height = height / 2;
+
+		int account_height = height / 5;
+		int fav_height = 2 * height / 3;
 		int sett_height = height - account_height - fav_height - 25;
-
+		int fri_height = 2 * height / 5;
+		int notif_height = height - fri_height - 25;
 
 		ImGui::BeginGroup();
 
@@ -257,6 +363,19 @@ namespace gfui {
 		gfui_FavoritesMenu(&disable_menu, fav_height);
 		gfui_SettingsMenu(&disable_menu, sett_height);
 		
+
+		ImGui::End();
+
+		ImGui::EndGroup();
+
+
+		ImGui::BeginGroup();
+		ImGui::SetNextWindowPos(ImVec2(4 * main_width, 0));
+		ImGui::SetNextWindowSize(ImVec2(main_width, height));
+		ImGui::Begin("User Menu Left", &main_open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+
+		gfui_FriendsMenu(&disable_menu, fri_height);
+		gfui_NotifsMenu(&disable_menu, notif_height);
 
 		ImGui::End();
 

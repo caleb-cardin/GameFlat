@@ -59,10 +59,15 @@ namespace gfuser {
 
 				auto incoming_username = formData["username"];
 				auto incoming_password = formData["password"];
-				GFUserServer::g_Users[incoming_username] = incoming_password;
-
-
-				session->close(restbed::OK, "SUCCESS", { {"Content-Length", "8"} });
+				if (g_Users.find(incoming_username) == g_Users.end())
+				{
+					GFUserServer::g_Users[incoming_username] = incoming_password;
+					session->close(restbed::OK, "SUCCESS", { {"Content-Length", "8"} });
+				}
+				else
+				{
+					session->close(restbed::OK, "ERROR: Username Exists!", { {"Content-Length", "24"} });
+				}
 			
 			}
 		);
@@ -88,10 +93,8 @@ namespace gfuser {
 				}
 				else
 				{
-					session->close(restbed::BAD_REQUEST, "FAILURE", { {"Content-Length", "8"} });
+					session->close(restbed::BAD_REQUEST, "ERROR: Wrong username and/or passcode!", { {"Content-Length", "39"} });
 				}
-				
-
 			}
 		);
 	}
@@ -107,7 +110,7 @@ namespace gfuser {
 				std::string urlEncodedData(body.begin(), body.end());
 				std::map<std::string, std::string> formData = parseUrlEncoded(urlEncodedData);
 
-				fprintf(stdout, "A message from CS361 :\nRECIEVED ON USER AUTH : BODY= %s", formData.at("DEBUG_FROM_CLIENT:").c_str());
+				fprintf(stdout, "RECIEVED : BODY= %s", formData.at("DEBUG_FROM_CLIENT:").c_str());
 
 				session->close(restbed::OK, "SUCCESS", { {"Content-Length", "8"} });
 
