@@ -49,14 +49,23 @@ namespace gfui {
 
 		if (ImGui::Button("Account Settings"))
 		{
-
+			ImGui::OpenPopup("WIP");
 		}
 		if (ImGui::Button("App Settings"))
 		{
-			
+			ImGui::OpenPopup("WIP");
 		}
 		
-		
+		if (ImGui::BeginPopupModal("WIP", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::Text("This feature is not yet implemented!");
+
+			if (ImGui::Button("OK", ImVec2(120, 0)))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
 
 		ImGui::EndChild();
 		ImGui::PopStyleVar();
@@ -294,6 +303,57 @@ namespace gfui {
 		ImGui::PopStyleVar();
 	}
 
+	void gfui_GamesMenu(bool* show, int height)
+	{
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
+		if (show)
+			window_flags |= ImGuiWindowFlags_MenuBar;
+		
+		ImGui::BeginChild("GamesMenu", ImVec2(0, height), true, window_flags);
+
+		if (show && ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("Games"))
+			{
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+
+		auto games_list = { "Game1", "Game2", "Game3", "Game4" };
+
+		const int padding = 10;
+		
+		
+		
+		auto column_Counter = int(0);
+		for (auto game : games_list)
+		{
+			if (column_Counter % 2 == 1)
+			{
+				ImGui::SameLine();
+			}
+			ImGui::BeginChild(game, ImVec2((height / 2) - padding, (height / 2) - padding), true, window_flags);
+
+			if (show && ImGui::BeginMenuBar())
+			{
+				if (ImGui::BeginMenu(game))
+				{
+					ImGui::EndMenu();
+				}
+				ImGui::EndMenuBar();
+			}
+
+			// Game stuff here
+
+			ImGui::EndChild();
+			column_Counter++;
+		}
+
+		ImGui::EndChild();
+		
+	}
+
 	void gfui_FriendsMenu(bool* show, int height)
 	{
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
@@ -318,6 +378,8 @@ namespace gfui {
 
 	void gfui_NotifsMenu(bool* show, int height)
 	{
+		static std::vector<const std::string> notifications;
+
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
 		if (show)
 			window_flags |= ImGuiWindowFlags_MenuBar;
@@ -332,8 +394,39 @@ namespace gfui {
 			}
 			ImGui::EndMenuBar();
 		}
-		ImGui::TextColored(ImVec4(.6f, .7f, .7f, 1), g_CurrentUser.get_Username() == "Guest" ? "Please log in to access notifications!" : "Friends list coming soon!");
 
+		bool show_notifs;
+		ImGui::TextColored(ImVec4(.6f, .7f, .7f, 1), g_CurrentUser.get_Username() == "Guest" ? "Please log in to access notifications!" : "Notifications coming soon!");
+
+		for (auto& i : notifications)
+		{
+			ImGui::TextColored(ImVec4(.6f, .7f, .7f, 1), i.c_str());
+		}
+
+
+		// INPUT NOTIFCATION LOGIC HERE
+		if (show_notifs == true)
+		{
+			static std::chrono::steady_clock::time_point cooldown;
+			if (ImGui::Button("Refresh") && cooldown < std::chrono::steady_clock::now())
+			{
+
+				std::string s = std::format("%F %T", std::chrono::system_clock::now());
+				auto r = notificationRequest(s);
+				std::vector<std::string> parts;
+				if (r.length() > 0)
+				{
+					
+					for (auto& ch : r)
+					{
+						if (ch == '%')
+							ch = ' ';
+					}
+
+				}
+				cooldown += std::chrono::steady_clock::duration(1000000000);
+			}
+		}
 		ImGui::EndChild();
 		ImGui::PopStyleVar();
 	}
@@ -368,9 +461,20 @@ namespace gfui {
 
 		ImGui::EndGroup();
 
+		ImGui::BeginGroup();
+		ImGui::SetNextWindowPos(ImVec2(main_width, 0));
+		ImGui::SetNextWindowSize(ImVec2(width - main_width * 2, height));
+		ImGui::Begin("Game Menu", &main_open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+
+		gfui_GamesMenu(&disable_menu, height - 20);
+
+
+		ImGui::End();
+
+		ImGui::EndGroup();
 
 		ImGui::BeginGroup();
-		ImGui::SetNextWindowPos(ImVec2(4 * main_width, 0));
+		ImGui::SetNextWindowPos(ImVec2(width - main_width, 0));
 		ImGui::SetNextWindowSize(ImVec2(main_width, height));
 		ImGui::Begin("User Menu Left", &main_open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 

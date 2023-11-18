@@ -24,5 +24,11 @@ namespace gfui {
 		return r.text;
 	}
 
+	std::string notificationRequest(std::string last_checked)
+	{
+		cpr::Response r = cpr::Post(cpr::Url{ "http://localhost:1985/notifications" }, cpr::Payload({ { "user_last_check_time", last_checked } }));
+		return r.text;
+	}
+
 
 } // namespace gfui 

@@ -5,10 +5,11 @@ cmake_minimum_required (VERSION 3.8)
 
 project ("GameFlat")
 
-include("C:/Dev/vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake")
+
+
+find_package(cpr REQUIRED)
 
 find_package(unofficial-restbed CONFIG REQUIRED)
-find_package(cpr REQUIRED)
 find_package(OpenGL REQUIRED)
 
 # Include sub-projects.
