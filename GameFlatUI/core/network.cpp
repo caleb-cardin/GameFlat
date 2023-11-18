@@ -23,11 +23,11 @@ namespace gfui {
 		cpr::Response r = cpr::Post(cpr::Url{ "http://localhost:1984/login" }, cpr::Payload({ { "username", username }, { "password", hasher.getHash() } }));
 		return r.text;
 	}
-
+	static auto last_time = std::chrono::system_clock::now();
 	std::string notificationRequest()
 	{
-		auto currentTime = std::chrono::system_clock::now();
-		auto timeString = std::chrono::system_clock::to_time_t(currentTime);
+		auto timeString = std::chrono::system_clock::to_time_t(last_time);
+		last_time = std::chrono::system_clock::now();
 
 		std::stringstream ss;
 		ss << std::put_time(gmtime(&timeString), "%Y-%m-%d %H:%M:%S");

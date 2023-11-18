@@ -5,8 +5,8 @@
 
 namespace gfui {
 
-	User g_CurrentUser{};
-	std::vector<std::string> globalNotificationStrings;
+	static User g_CurrentUser{};
+	static std::vector<std::string> globalNotificationStrings;
 
 	void gfui_FavoritesMenu(bool* show, int height)
 	{
@@ -389,7 +389,9 @@ namespace gfui {
 			// Skip empty tokens
 			if (!token.empty()) {
 				// Store non-empty tokens in the global vector
-				globalNotificationStrings.push_back(token);
+				auto it = std::find(globalNotificationStrings.begin(), globalNotificationStrings.end(), token);
+				if (it == globalNotificationStrings.end())
+					globalNotificationStrings.push_back(token);
 			}
 		}
 	}
@@ -411,19 +413,27 @@ namespace gfui {
 			}
 			ImGui::EndMenuBar();
 		}
-		bool show_notifs = false;
+		static bool show_notifs = false;
 		if (g_CurrentUser.get_Username() != "Guest")
 			show_notifs = true;
 
-		ImGui::TextColored(ImVec4(.6f, .7f, .7f, 1), show_notifs ? "Please log in to access notifications!" : "Notifications coming soon!");
+		ImGui::TextColored(ImVec4(.6f, .7f, .7f, 1), g_CurrentUser.get_Username() == "Guest" ? "Please log in to access notifications!" : "Notifications:");
 
 		
 
-
+		ImGui::Separator();
 		// INPUT NOTIFCATION LOGIC HERE
 		if (show_notifs == true)
 		{
-			
+			for (const auto& notification : globalNotificationStrings)
+			{
+				ImGui::Text(notification.c_str());
+			}
+		}
+		if (ImGui::Button("Refresh"))
+		{
+			auto text = notificationRequest();
+			_splitAndStoreNotifs(text);
 		}
 		ImGui::EndChild();
 		ImGui::PopStyleVar();
