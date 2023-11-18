@@ -24,11 +24,29 @@ namespace gfui {
 		return r.text;
 	}
 
-	std::string notificationRequest(std::string last_checked)
+	std::string notificationRequest()
 	{
-		cpr::Response r = cpr::Post(cpr::Url{ "http://localhost:1985/notifications" }, cpr::Payload({ { "user_last_check_time", last_checked } }));
+		auto currentTime = std::chrono::system_clock::now();
+		auto timeString = std::chrono::system_clock::to_time_t(currentTime);
+
+		std::stringstream ss;
+		ss << std::put_time(gmtime(&timeString), "%Y-%m-%d %H:%M:%S");
+		std::string formattedTime = ss.str();
+
+		cpr::Response r = cpr::Post(cpr::Url{ "http://localhost:1985/notifications" }, cpr::Payload({ { "user_last_check_time", formattedTime } }));
 		return r.text;
 	}
 
+// // Use this function in another library to parse the above data >---------------------------------------------------------^^^^^^^^^^^^^^^^^^
+// 
+//		std::chrono::system_clock::time_point parseTime(const std::string& timeString)
+//		{
+//			std::tm tm = {};
+//			std::istringstream ss(timeString);
+//			ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S");
+//
+//			return std::chrono::system_clock::from_time_t(std::mktime(&tm));
+//		}
+//		
 
 } // namespace gfui 

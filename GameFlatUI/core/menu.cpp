@@ -6,6 +6,7 @@
 namespace gfui {
 
 	User g_CurrentUser{};
+	std::vector<std::string> globalNotificationStrings;
 
 	void gfui_FavoritesMenu(bool* show, int height)
 	{
@@ -375,11 +376,27 @@ namespace gfui {
 		ImGui::EndChild();
 		ImGui::PopStyleVar();
 	}
+	
+
+	void _splitAndStoreNotifs(const std::string& inputString)
+	{
+		std::istringstream ss(inputString);
+		std::string token;
+
+		// Clear the existing contents of the global vector
+
+		while (std::getline(ss, token, '%')) {
+			// Skip empty tokens
+			if (!token.empty()) {
+				// Store non-empty tokens in the global vector
+				globalNotificationStrings.push_back(token);
+			}
+		}
+	}
 
 	void gfui_NotifsMenu(bool* show, int height)
 	{
-		static std::vector<const std::string> notifications;
-
+		
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
 		if (show)
 			window_flags |= ImGuiWindowFlags_MenuBar;
@@ -394,38 +411,19 @@ namespace gfui {
 			}
 			ImGui::EndMenuBar();
 		}
+		bool show_notifs = false;
+		if (g_CurrentUser.get_Username() != "Guest")
+			show_notifs = true;
 
-		bool show_notifs;
-		ImGui::TextColored(ImVec4(.6f, .7f, .7f, 1), g_CurrentUser.get_Username() == "Guest" ? "Please log in to access notifications!" : "Notifications coming soon!");
+		ImGui::TextColored(ImVec4(.6f, .7f, .7f, 1), show_notifs ? "Please log in to access notifications!" : "Notifications coming soon!");
 
-		for (auto& i : notifications)
-		{
-			ImGui::TextColored(ImVec4(.6f, .7f, .7f, 1), i.c_str());
-		}
+		
 
 
 		// INPUT NOTIFCATION LOGIC HERE
 		if (show_notifs == true)
 		{
-			static std::chrono::steady_clock::time_point cooldown;
-			if (ImGui::Button("Refresh") && cooldown < std::chrono::steady_clock::now())
-			{
-
-				std::string s = std::format("%F %T", std::chrono::system_clock::now());
-				auto r = notificationRequest(s);
-				std::vector<std::string> parts;
-				if (r.length() > 0)
-				{
-					
-					for (auto& ch : r)
-					{
-						if (ch == '%')
-							ch = ' ';
-					}
-
-				}
-				cooldown += std::chrono::steady_clock::duration(1000000000);
-			}
+			
 		}
 		ImGui::EndChild();
 		ImGui::PopStyleVar();
