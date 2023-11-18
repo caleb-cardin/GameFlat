@@ -1,0 +1,2 @@
+#pragma code_page(65001)
+1 /* CREATEPROCESS_MANIFEST_RESOURCE_ID */ 24 /* RT_MANIFEST */ "F:/Dev/CS361/GamePlatformProject/GameFlat/out/build/x64-debug/GFUserAuth/CMakeFiles/GFUserAuth.dir/embed.manifest"
